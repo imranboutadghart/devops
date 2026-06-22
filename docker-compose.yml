@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      - VARIABLE=value
+    networks:
+      - internals
+    depends_on:
+      dabase:
+        condition: service_healthy
+  dabase:
+    image: postgres:16-alpine
+    networks:
+      - internals
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
+
+networks:
+  internals:
