@@ -7,6 +7,7 @@ import time
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+# Comment to check if CI is good.
 
 # Replace with your actual PostgreSQL credentials.
 # Overridable via DATABASE_URL so tests can point at a throwaway SQLite db.
