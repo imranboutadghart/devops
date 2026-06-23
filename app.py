@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, url_for, abort, Response
+import os
 import secrets
 import html
 import time
@@ -7,8 +8,12 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Replace with your actual PostgreSQL credentials
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:mysecretpassword@dabase:5432/mydatabase'
+# Replace with your actual PostgreSQL credentials.
+# Overridable via DATABASE_URL so tests can point at a throwaway SQLite db.
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL',
+    'postgresql://myuser:mysecretpassword@dabase:5432/mydatabase',
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

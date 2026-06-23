@@ -1,0 +1,52 @@
+name: CI pipeline
+run-name: integrating dev code to main branch
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  validating-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: run tests
+        run: pytest
+
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build images and start containers
+        run: docker compose up --build -d --wait
+      - name: show containers
+        run: docker compose ps
+      - name: check app responsivity
+        run: curl --retry 5 --retry-delay 3 --retry-connrefused --fail http://localhost:8080
+      - name: dump logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: docker down
+        run: docker compose down -v 
+        
+  pushing-to-main:
+    needs: [validating-code, build-and-run]
+    permissions: write
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: merge dev into main and push
+        run: |
+          git config user.name "mska"
+          git config user.email "mska@charikat-lfanid.com"
+          git fetch origin main dev
+          git checkout main
+          git merge --ff-only origin/dev
+          git push origin main
