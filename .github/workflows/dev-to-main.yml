@@ -35,7 +35,7 @@ jobs:
         
   pushing-to-main:
     needs: [validating-code, build-and-run]
-    permissions: write
+    permissions: write-all
     steps:
       - name: checkout code
         uses: actions/checkout@v4
