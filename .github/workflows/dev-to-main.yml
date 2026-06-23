@@ -34,6 +34,7 @@ jobs:
         run: docker compose down -v 
         
   pushing-to-main:
+    runs-on: ubuntu-latest
     needs: [validating-code, build-and-run]
     permissions: write-all
     steps:
